@@ -1,0 +1,15 @@
+{
+    "config": {
+      "certFile": "",
+      "keyFile": "",
+      "caCertFiles": null,
+      "timeout": 1000000000,
+      "consistency": ""
+    },
+    "cluster": {
+      "leader": "http://172.16.2.21:8762/eureka",
+      "machines": [
+        "http://172.16.2.21:8762/eureka"
+      ]
+    }
+  }

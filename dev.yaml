@@ -1,0 +1,9 @@
+SITE:
+  TITLE: DEV
+
+DB:
+  HOST: "k8s.devel.intra.db.cinema21.co.id"
+  PORT: "3306"
+  USERNAME: "dsserver"
+  PASSWORD: "xxi2121."
+  NAME: "db_digsig"
