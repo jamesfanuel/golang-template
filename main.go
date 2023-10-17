@@ -119,7 +119,7 @@ func main() {
 	}
 	defer db.Close()
 
-	logfile, err := os.Create("ds3-product-v2.log")
+	logfile, err := os.Create("logs/ds3-product-v2.log")
 
 	if err != nil {
 		log.Println(err.Error())
@@ -252,6 +252,7 @@ func updateProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Request from %s for %s", r.RemoteAddr, r.URL)
 	params := mux.Vars(r)
 	stmt, err := db.Prepare("DELETE FROM ds_product WHERE id = ?")
 	if err != nil {
