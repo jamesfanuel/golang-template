@@ -141,6 +141,7 @@ func main() {
 // @Summary Get Product
 // @Router  /get [GET]
 func getProduct(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Request from %s for %s", r.RemoteAddr, r.URL)
 	w.Header().Set("Content-Type", "application/json")
 	var products []Product
 	result, err := db.Query("SELECT id, product_code, product_name, product_type, subcategory_code, category_code, active_status from ds_product")
@@ -164,6 +165,7 @@ func getProduct(w http.ResponseWriter, r *http.Request) {
 // @Summary Get Product By Id
 // @Router  /get/{id} [GET]
 func getProductById(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Request from %s for %s", r.RemoteAddr, r.URL)
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
@@ -187,6 +189,7 @@ func getProductById(w http.ResponseWriter, r *http.Request) {
 }
 
 func insertProduct(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Request from %s for %s", r.RemoteAddr, r.URL)
 	w.Header().Set("Content-Type", "application/json")
 
 	stmt, err := db.Prepare("INSERT INTO ds_product (product_code, product_name, product_type, subcategory_code, category_code, product_end_date, active_status, created_time, created_by) VALUES(?,?,?,?,?,?,1,NOW(),?)")
@@ -217,6 +220,7 @@ func insertProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateProduct(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Request from %s for %s", r.RemoteAddr, r.URL)
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
