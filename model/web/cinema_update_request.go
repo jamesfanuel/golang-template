@@ -1,6 +1,5 @@
 package web
 
 type CinemaUpdateRequest struct {
-	CinemaCode string
-	CinemaName string
+	CinemaName string `json:"cinema_name"`
 }

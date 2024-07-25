@@ -1,0 +1,138 @@
+basePath: /api/v1
+definitions:
+  web.CinemaCreateRequest:
+    properties:
+      cinema_code:
+        type: string
+      cinema_name:
+        type: string
+    required:
+    - cinema_code
+    - cinema_name
+    type: object
+  web.CinemaUpdateRequest:
+    properties:
+      cinema_name:
+        type: string
+    type: object
+  web.WebResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API Doc for x1-cinema.
+  title: x1-cinema API
+  version: "1.0"
+paths:
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new theater with the provided data.
+      parameters:
+      - description: Cinema object to be created
+        in: body
+        name: Cinema
+        required: true
+        schema:
+          $ref: '#/definitions/web.CinemaCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Create a new theater
+      tags:
+      - cinema
+  /delete/{CinemaCode}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete theater with Cinema Code provided.
+      parameters:
+      - description: Cinema object to be deleted
+        in: path
+        name: CinemaCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Delete theater
+      tags:
+      - cinema
+  /get:
+    get:
+      consumes:
+      - application/json
+      description: Find All Theater on Master.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Find All Theater
+      tags:
+      - cinema
+  /get/{CinemaCode}:
+    get:
+      consumes:
+      - application/json
+      description: Find Specific Theater By Code Provided.
+      parameters:
+      - description: Cinema Found
+        in: path
+        name: CinemaCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Find By Theater Code
+      tags:
+      - cinema
+  /update/{CinemaCode}:
+    put:
+      consumes:
+      - application/json
+      description: Update theater with the provided data.
+      parameters:
+      - description: Cinema object to be updated
+        in: path
+        name: CinemaCode
+        required: true
+        type: string
+      - description: Cinema object to be updated
+        in: body
+        name: Cinema
+        required: true
+        schema:
+          $ref: '#/definitions/web.CinemaUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Update theater
+      tags:
+      - cinema
+swagger: "2.0"

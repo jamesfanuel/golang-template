@@ -43,7 +43,7 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 	return helper.ToCinemaResponse(cinema)
 }
 
-func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest) web.CinemaResponse {
+func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -51,13 +51,12 @@ func (service *CinemaServiceImpl) Update(ctx context.Context, request web.Cinema
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, request.CinemaCode)
+	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
 	helper.PanicIfError(err)
 
-	cinema.CinemaCode = request.CinemaCode
 	cinema.CinemaName = request.CinemaName
 
-	cinema = service.CinemaRepository.Update(ctx, tx, cinema)
+	cinema = service.CinemaRepository.Update(ctx, tx, cinema, CinemaCode)
 
 	return helper.ToCinemaResponse(cinema)
 }
@@ -70,7 +69,9 @@ func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string)
 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
 	helper.PanicIfError(err)
 
-	service.CinemaRepository.Delete(ctx, tx, cinema)
+	cinema.CinemaCode = CinemaCode
+
+	service.CinemaRepository.Delete(ctx, tx, CinemaCode)
 }
 
 func (service *CinemaServiceImpl) FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponse {

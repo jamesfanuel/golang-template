@@ -1,0 +1,19 @@
+basePath: /api/v1
+host: localhost:3000
+info:
+  contact: {}
+  description: API Doc for x1-cinema.
+  title: x1-cinema API
+  version: "1.0"
+paths:
+  /get:
+    get:
+      description: API To Get All Company
+      operationId: get-company
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get All Company List
+swagger: "2.0"

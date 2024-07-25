@@ -1,0 +1,28 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API Doc for x1-cinema.",
+        "title": "x1-cinema API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/api/v1",
+    "paths": {
+        "/get": {
+            "get": {
+                "description": "API To Get All Company",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get All Company List",
+                "operationId": "get-company",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}
