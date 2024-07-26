@@ -2,74 +2,110 @@ package repository
 
 import (
 	"context"
-	"database/sql"
-	"errors"
-	"x1-cinema/helper"
 	"x1-cinema/model/domain"
+
+	"gorm.io/gorm"
 )
 
 type CinemaRepositoryImpl struct {
+	DB *gorm.DB
 }
 
-func NewCinemaRepository() CinemaRepository {
-	return &CinemaRepositoryImpl{}
+func NewCinemaRepository(db *gorm.DB) *CinemaRepositoryImpl {
+	return &CinemaRepositoryImpl{DB: db}
 }
 
-func (repository *CinemaRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, cinema domain.Cinema) domain.Cinema {
-	SQL := "insert into mg_cinema (cinema_code, cinema_name) values (?, ?)"
-	_, err := tx.ExecContext(ctx, SQL, cinema.CinemaCode, cinema.CinemaName)
+func (repository *CinemaRepositoryImpl) Save(ctx context.Context, tx *gorm.DB, cinema domain.Cinema) domain.Cinema {
+	// SQL := "insert into mg_cinema (cinema_code, cinema_name) values (?, ?)"
+	// _, err := tx.ExecContext(ctx, SQL, cinema.CinemaCode, cinema.CinemaName)
 
-	helper.PanicIfError(err)
+	// id := uuid.New()
+	dt := domain.Cinema{
+		CinemaCode:   cinema.CinemaCode,
+		CinemaName:   cinema.CinemaName,
+		ProvinceCode: cinema.ProvinceCode,
+		CityCode:     cinema.CityCode,
+		RegionCode:   cinema.RegionCode,
+		CinemaLevel:  cinema.CinemaLevel,
+		// RowId:        id,
+	}
+
+	repository.DB.Save(&dt)
 
 	return cinema
 }
 
-func (repository *CinemaRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, cinema domain.Cinema, CinemaCode string) domain.Cinema {
-	SQL := "update mg_cinema set cinema_name = ? where cinema_code = ?"
-	_, err := tx.ExecContext(ctx, SQL, cinema.CinemaName, CinemaCode)
+// func (repository *CinemaRepositoryImpl) Update(ctx context.Context, tx *gorm.DB, cinema domain.Cinema, CinemaCode string) domain.Cinema {
+// 	SQL := "update mg_cinema set cinema_name = ? where cinema_code = ?"
+// 	_, err := tx.ExecContext(ctx, SQL, cinema.CinemaName, CinemaCode)
 
-	helper.PanicIfError(err)
+// 	helper.PanicIfError(err)
 
-	return cinema
+// 	return cinema
+// }
+
+func (repository *CinemaRepositoryImpl) Delete(ctx context.Context, tx *gorm.DB, cinema domain.Cinema) {
+	// SQL := "update mg_cinema set is_active = 0 where cinema_code = ?"
+	// _, err := tx.ExecContext(ctx, SQL, CinemaCode)
+	// helper.PanicIfError(err)
+	repository.DB.Delete(&cinema)
 }
 
-func (repository *CinemaRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, CinemaCode string) {
-	SQL := "update mg_cinema set is_active = 0 where cinema_code = ?"
-	_, err := tx.ExecContext(ctx, SQL, CinemaCode)
-	helper.PanicIfError(err)
-}
+func (repository *CinemaRepositoryImpl) FindByCode(ctx context.Context, tx *gorm.DB, CinemaCode string) (domain.Cinema, error) {
+	// SQL := "select cinema_code, cinema_name from mg_cinema where cinema_code = ? and is_active = 1"
+	// rows, err := tx.QueryContext(ctx, SQL, CinemaCode)
+	// helper.PanicIfError(err)
+	// defer rows.Close()
 
-func (repository *CinemaRepositoryImpl) FindByCode(ctx context.Context, tx *sql.Tx, CinemaCode string) (domain.Cinema, error) {
-	SQL := "select cinema_code, cinema_name from mg_cinema where cinema_code = ? and is_active = 1"
-	rows, err := tx.QueryContext(ctx, SQL, CinemaCode)
-	helper.PanicIfError(err)
-	defer rows.Close()
+	// cinema := domain.Cinema{}
 
-	cinema := domain.Cinema{}
+	// if rows.Next() {
+	// 	rows.Scan(&cinema.CinemaCode, &cinema.CinemaName)
+	// 	helper.PanicIfError(err)
 
-	if rows.Next() {
-		rows.Scan(&cinema.CinemaCode, &cinema.CinemaName)
-		helper.PanicIfError(err)
+	// 	return cinema, nil
+	// } else {
+	// 	return cinema, errors.New("cinema is not found")
+	// }
+	dt := domain.Cinema{}
 
-		return cinema, nil
-	} else {
-		return cinema, errors.New("cinema is not found")
-	}
-}
+	result := repository.DB.Take(&dt, "cinema_code = ?", CinemaCode)
 
-func (repository *CinemaRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Cinema {
-	SQL := "select cinema_code, cinema_name FROM mg_cinema WHERE is_active = 1"
-	rows, err := tx.QueryContext(ctx, SQL)
-	helper.PanicIfError(err)
-	defer rows.Close()
-
-	var cinemas []domain.Cinema
-	for rows.Next() {
-		cinema := domain.Cinema{}
-		err := rows.Scan(&cinema.CinemaCode, &cinema.CinemaName)
-		helper.PanicIfError(err)
-		cinemas = append(cinemas, cinema)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return dt, result.Error
+		}
 	}
 
-	return cinemas
+	return dt, nil
+
+}
+
+func (repository *CinemaRepositoryImpl) FindAll(ctx context.Context, tx *gorm.DB) ([]domain.Cinema, error) {
+	// SQL := "select cinema_code, cinema_name FROM mg_cinema WHERE is_active = 1"
+	// rows, err := tx.QueryContext(ctx, SQL)
+	// helper.PanicIfError(err)
+	// defer rows.Close()
+
+	// var cinemas []domain.Cinema
+	// for rows.Next() {
+	// 	cinema := domain.Cinema{}
+	// 	err := rows.Scan(&cinema.CinemaCode, &cinema.CinemaName)
+	// 	helper.PanicIfError(err)
+	// 	cinemas = append(cinemas, cinema)
+	// }
+
+	// return cinemas
+
+	dt := []domain.Cinema{}
+
+	result := repository.DB.Find(&dt)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return dt, result.Error
+		}
+	}
+
+	return dt, nil
 }

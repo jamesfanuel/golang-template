@@ -7,7 +7,11 @@ import (
 
 func ToCinemaResponse(cinema domain.Cinema) web.CinemaResponse {
 	return web.CinemaResponse{
-		CinemaCode: cinema.CinemaCode,
-		CinemaName: cinema.CinemaName,
+		CinemaCode:   cinema.CinemaCode,
+		CinemaName:   cinema.CinemaName,
+		ProvinceCode: cinema.ProvinceCode,
+		CityCode:     cinema.CityCode,
+		RegionCode:   cinema.RegionCode,
+		CinemaLevel:  cinema.CinemaLevel,
 	}
 }

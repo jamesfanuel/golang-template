@@ -2,22 +2,24 @@ package service
 
 import (
 	"context"
-	"database/sql"
+	// "database/sql"
+	"x1-cinema/exception"
 	"x1-cinema/helper"
 	"x1-cinema/model/domain"
 	"x1-cinema/model/web"
 	"x1-cinema/repository"
 
 	"github.com/go-playground/validator"
+	"gorm.io/gorm"
 )
 
 type CinemaServiceImpl struct {
 	CinemaRepository repository.CinemaRepository
-	DB               *sql.DB
+	DB               *gorm.DB
 	Validate         *validator.Validate
 }
 
-func NewCinemaService(cinemaRepository repository.CinemaRepository, DB *sql.DB, validate *validator.Validate) CinemaService {
+func NewCinemaService(cinemaRepository repository.CinemaRepository, DB *gorm.DB, validate *validator.Validate) *CinemaServiceImpl {
 	return &CinemaServiceImpl{
 		CinemaRepository: cinemaRepository,
 		DB:               DB,
@@ -29,13 +31,17 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
+	tx := service.DB.Begin()
+	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
 	cinema := domain.Cinema{
-		CinemaCode: request.CinemaCode,
-		CinemaName: request.CinemaName,
+		CinemaCode:   request.CinemaCode,
+		CinemaName:   request.CinemaName,
+		ProvinceCode: request.ProvinceCode,
+		CityCode:     request.CityCode,
+		RegionCode:   request.RegionCode,
+		CinemaLevel:  request.CinemaLevel,
 	}
 
 	cinema = service.CinemaRepository.Save(ctx, tx, cinema)
@@ -43,54 +49,59 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 	return helper.ToCinemaResponse(cinema)
 }
 
-func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponse {
-	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
+// func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponse {
+// 	err := service.Validate.Struct(request)
+// 	helper.PanicIfError(err)
 
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+// 	tx, err := service.DB.Begin()
+// 	helper.PanicIfError(err)
+// 	defer helper.CommitOrRollback(tx)
 
-	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
-	helper.PanicIfError(err)
+// 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
+// 	helper.PanicIfError(err)
 
-	cinema.CinemaName = request.CinemaName
+// 	cinema.CinemaName = request.CinemaName
 
-	cinema = service.CinemaRepository.Update(ctx, tx, cinema, CinemaCode)
+// 	cinema = service.CinemaRepository.Update(ctx, tx, cinema, CinemaCode)
 
-	return helper.ToCinemaResponse(cinema)
-}
+// 	return helper.ToCinemaResponse(cinema)
+// }
 
 func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string) {
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
+	tx := service.DB.Begin()
+	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
-	helper.PanicIfError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
-	cinema.CinemaCode = CinemaCode
-
-	service.CinemaRepository.Delete(ctx, tx, CinemaCode)
+	service.CinemaRepository.Delete(ctx, tx, cinema)
 }
 
 func (service *CinemaServiceImpl) FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponse {
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
+	tx := service.DB.Begin()
+	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
-	helper.PanicIfError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	return helper.ToCinemaResponse(cinema)
 }
 
 func (service *CinemaServiceImpl) FindAll(ctx context.Context) []web.CinemaResponse {
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
+	tx := service.DB.Begin()
+	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	cinema := service.CinemaRepository.FindAll(ctx, tx)
+	cinema, err := service.CinemaRepository.FindAll(ctx, tx)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	var cinemaResponses []web.CinemaResponse
 	for _, cinema := range cinema {

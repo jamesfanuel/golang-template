@@ -15,7 +15,7 @@ func NewRouter(cinemaController controller.CinemaController) *httprouter.Router 
 	router.GET(apiPrefix+"/get", cinemaController.FindAll)
 	router.GET(apiPrefix+"/get/:CinemaCode", cinemaController.FindByCode)
 	router.POST(apiPrefix+"/create", cinemaController.Create)
-	router.PUT(apiPrefix+"/update/:CinemaCode", cinemaController.Update)
+	// router.PUT(apiPrefix+"/update/:CinemaCode", cinemaController.Update)
 	router.DELETE(apiPrefix+"/delete/:CinemaCode", cinemaController.Delete)
 
 	router.ServeFiles("/swagger/*filepath", http.Dir("./swagger"))

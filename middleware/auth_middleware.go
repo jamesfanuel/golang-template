@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 	"x1-cinema/helper"
 	"x1-cinema/model/web"
 )
@@ -15,7 +16,7 @@ func NewAuthMiddleware(handler http.Handler) *AuthMiddleware {
 }
 
 func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	if "RAHASIA" == request.Header.Get("X-API-KEY") {
+	if "RAHASIA" == request.Header.Get("X-API-KEY") || strings.Contains(request.URL.Path, "/swagger") {
 		middleware.Handler.ServeHTTP(writer, request)
 	} else {
 		writer.Header().Set("Content-Type", "application/json")

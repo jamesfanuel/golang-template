@@ -1,19 +1,27 @@
 package app
 
 import (
-	"database/sql"
 	"time"
 	"x1-cinema/helper"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-func NewDB() *sql.DB {
-	db, err := sql.Open("mysql", "dsserver:xxi2121.@tcp(k8s.devel.intra.db.cinema21.co.id:3306)/db_xone")
+func NewDB() *gorm.DB {
+	dialect := mysql.Open("dsserver:xxi2121.@tcp(k8s.devel.intra.db.cinema21.co.id:3306)/db_xone?charset=utf8mb4&parseTime=True&loc=Local")
+	db, err := gorm.Open(dialect, &gorm.Config{})
 	helper.PanicIfError(err)
 
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
-	db.SetConnMaxIdleTime(10 * time.Minute)
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
 
 	return db
 }
