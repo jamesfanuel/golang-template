@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"time"
+
 	// "database/sql"
 	"x1-cinema/exception"
 	"x1-cinema/helper"
@@ -44,6 +46,9 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 		CinemaLevel:  request.CinemaLevel,
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	cinema = service.CinemaRepository.Save(ctx, tx, cinema)
 
 	return helper.ToCinemaResponse(cinema)
@@ -72,6 +77,9 @@ func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string)
 	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
@@ -85,6 +93,9 @@ func (service *CinemaServiceImpl) FindByCode(ctx context.Context, CinemaCode str
 	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
@@ -97,6 +108,9 @@ func (service *CinemaServiceImpl) FindAll(ctx context.Context) []web.CinemaRespo
 	tx := service.DB.Begin()
 	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
 	cinema, err := service.CinemaRepository.FindAll(ctx, tx)
 	if err != nil {
