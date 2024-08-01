@@ -2,26 +2,31 @@ package domain
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
-// type Cinema struct {
-// 	CinemaCode string `json:"cinema_code"`
-// 	CinemaName string `json:"cinema_name"`
-// }
-
 type Cinema struct {
-	CinemaCode   string `gorm:"primary_key"`
-	CinemaName   string
-	ProvinceCode string
-	CityCode     string
-	RegionCode   string
-	CinemaLevel  string
+	CinemaCode      string `gorm:"primary_key;<-:create"`
+	CinemaName      string `gorm:"<-:create"`
+	CinemaOwner     string
+	LocationCode    string
+	ProvinceCode    string
+	CityCode        string
+	RegionCode      string
+	CompanyCode     string
+	CinemaLevel     string
+	OracleCode      string
+	IsDataMigration string
+	CloseFlag       string
 	// RowId        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4()"`
-	CreatedAt time.Time      `gorm:"column:created_at;autoCreateTime"`
-	UpdatedAt time.Time      `gorm:"column:updated_at;autoCreateTime;autoUpdateTime"`
-	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at"`
+	CloseStart    string
+	CloseEnd      string
+	OperatorEmail string `gorm:"unique"`
+	CreatedBy     string
+	CreatedAt     time.Time `gorm:"column:created_at;autoCreateTime;<-:create"`
+	CreatedHostIp string
+	UpdatedBy     string
+	UpdatedAt     time.Time
+	UpdatedHostIp string
 }
 
 func (c *Cinema) TableName() string {

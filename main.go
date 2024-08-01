@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"x1-cinema/app"
 	"x1-cinema/helper"
 	"x1-cinema/middleware"
 
@@ -25,8 +24,8 @@ func NewServer(authMiddleware *middleware.AuthMiddleware) *http.Server {
 // @description API Doc for x1-cinema.
 // @BasePath /api/v1
 func main() {
-	app.NewLog("Info", "Initiate Application")
-	app.NewEureka()
+	// app.NewLog("Info", "Initiate Application")
+	// app.NewEureka()
 
 	fmt.Print("Ready To Serve\n")
 

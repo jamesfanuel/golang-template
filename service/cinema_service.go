@@ -6,9 +6,9 @@ import (
 )
 
 type CinemaService interface {
-	Create(ctx context.Context, request web.CinemaCreateRequest) web.CinemaResponse
-	// Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponse
+	Create(ctx context.Context, request web.CinemaCreateRequest) web.CinemaResponseCreate
+	Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponseUpdate
 	Delete(ctx context.Context, CinemaCode string)
-	FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponse
-	FindAll(ctx context.Context) []web.CinemaResponse
+	FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponseFind
+	FindAll(ctx context.Context) []web.CinemaResponseFind
 }

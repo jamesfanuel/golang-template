@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"x1-cinema/model/domain"
 
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -16,40 +18,63 @@ func NewCinemaRepository(db *gorm.DB) *CinemaRepositoryImpl {
 	return &CinemaRepositoryImpl{DB: db}
 }
 
-func (repository *CinemaRepositoryImpl) Save(ctx context.Context, tx *gorm.DB, cinema domain.Cinema) domain.Cinema {
-	repository.DB.Transaction(func(tx *gorm.DB) error {
-		var cinema domain.Cinema
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&cinema, "cinema_code = ?", cinema.CinemaCode).Error
+func (repository *CinemaRepositoryImpl) Save(ctx context.Context, tx *gorm.DB, cinema domain.Cinema) (domain.Cinema, error) {
+	result := repository.DB.Create(&cinema).Error
+
+	if result != nil {
+		// Cek jika kesalahan adalah kesalahan MySQL
+		if mysqlErr, ok := result.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Kode 1062 adalah kode duplikat entri di MySQL
+				return cinema, mysqlErr
+			}
+		}
+		return cinema, result
+	}
+
+	return cinema, nil
+}
+
+func (repository *CinemaRepositoryImpl) Update(ctx context.Context, tx *gorm.DB, cinema domain.Cinema, CinemaCode string) domain.Cinema {
+	tx.Transaction(func(tx *gorm.DB) error {
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Take(&cinema, "cinema_code = ?", CinemaCode).Error
 		if err != nil {
 			return err
 		}
 
-		dt := domain.Cinema{
-			CinemaCode:   cinema.CinemaCode,
-			CinemaName:   cinema.CinemaName,
-			ProvinceCode: cinema.ProvinceCode,
-			CityCode:     cinema.CityCode,
-			RegionCode:   cinema.RegionCode,
-			CinemaLevel:  cinema.CinemaLevel,
-			// RowId:        id,
-		}
+		err = tx.Model(&domain.Cinema{}).Where("cinema_code = ?", CinemaCode).Updates(map[string]interface{}{
+			"cinema_owner":      cinema.CinemaOwner,
+			"location_code":     cinema.LocationCode,
+			"province_code":     cinema.ProvinceCode,
+			"city_code":         cinema.CityCode,
+			"region_code":       cinema.RegionCode,
+			"company_code":      cinema.CompanyCode,
+			"cinema_level":      cinema.CinemaLevel,
+			"oracle_code":       cinema.OracleCode,
+			"is_data_migration": cinema.IsDataMigration,
+			"close_flag":        cinema.CloseFlag,
+			"close_start":       cinema.CloseStart,
+			"close_end":         cinema.CloseEnd,
+			"operator_email":    cinema.OperatorEmail,
+			"updated_by":        cinema.UpdatedBy,
+			"updated_host_ip":   cinema.UpdatedHostIp,
+		}).Error
 
-		return repository.DB.Save(&dt).Error
+		return err
 	})
 
 	return cinema
 }
 
-// func (repository *CinemaRepositoryImpl) Update(ctx context.Context, tx *gorm.DB, cinema domain.Cinema, CinemaCode string) domain.Cinema {
-// 	SQL := "update mg_cinema set cinema_name = ? where cinema_code = ?"
-// 	_, err := tx.ExecContext(ctx, SQL, cinema.CinemaName, CinemaCode)
-
-// 	helper.PanicIfError(err)
-
-// 	return cinema
-// }
-
 func (repository *CinemaRepositoryImpl) Delete(ctx context.Context, tx *gorm.DB, cinema domain.Cinema) {
+	dt := domain.Cinema{}
+	result := repository.DB.Take(&dt, "cinema_code = ?", cinema.CinemaCode)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			fmt.Print("Tidak ada record yang bisa didelete")
+		}
+	}
 	repository.DB.Delete(&cinema)
 }
 

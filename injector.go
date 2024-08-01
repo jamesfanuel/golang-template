@@ -11,10 +11,10 @@ import (
 	"x1-cinema/repository"
 	"x1-cinema/service"
 
+	"github.com/go-playground/validator"
 	"github.com/google/wire"
 	"github.com/julienschmidt/httprouter"
 
-	"github.com/go-playground/validator"
 	_ "github.com/go-sql-driver/mysql"
 )
 

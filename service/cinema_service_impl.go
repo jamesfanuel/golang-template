@@ -29,7 +29,7 @@ func NewCinemaService(cinemaRepository repository.CinemaRepository, DB *gorm.DB,
 	}
 }
 
-func (service *CinemaServiceImpl) Create(ctx context.Context, request web.CinemaCreateRequest) web.CinemaResponse {
+func (service *CinemaServiceImpl) Create(ctx context.Context, request web.CinemaCreateRequest) web.CinemaResponseCreate {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -38,39 +38,73 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 	defer helper.CommitOrRollback(tx)
 
 	cinema := domain.Cinema{
-		CinemaCode:   request.CinemaCode,
-		CinemaName:   request.CinemaName,
-		ProvinceCode: request.ProvinceCode,
-		CityCode:     request.CityCode,
-		RegionCode:   request.RegionCode,
-		CinemaLevel:  request.CinemaLevel,
+		CinemaCode:      request.CinemaCode,
+		CinemaName:      request.CinemaName,
+		CinemaOwner:     request.CinemaOwner,
+		LocationCode:    request.LocationCode,
+		ProvinceCode:    request.ProvinceCode,
+		CityCode:        request.CityCode,
+		RegionCode:      request.RegionCode,
+		CompanyCode:     request.CompanyCode,
+		CinemaLevel:     request.CinemaLevel,
+		OracleCode:      request.OracleCode,
+		IsDataMigration: request.IsDataMigration,
+		CloseFlag:       request.CloseFlag,
+		CloseStart:      request.CloseStart,
+		CloseEnd:        request.CloseEnd,
+		OperatorEmail:   request.OperatorEmail,
+		CreatedBy:       request.CreatedBy,
+		CreatedAt:       time.Now(),
+		CreatedHostIp:   request.CreatedHostIp,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	cinema = service.CinemaRepository.Save(ctx, tx, cinema)
+	cinema, err = service.CinemaRepository.Save(ctx, tx, cinema)
 
-	return helper.ToCinemaResponse(cinema)
+	if err != nil {
+		panic(exception.NewDuplicateKeyError(err.Error()))
+	}
+
+	return helper.ToCinemaResponseCreate(cinema)
 }
 
-// func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponse {
-// 	err := service.Validate.Struct(request)
-// 	helper.PanicIfError(err)
+func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponseUpdate {
+	err := service.Validate.Struct(request)
+	helper.PanicIfError(err)
 
-// 	tx, err := service.DB.Begin()
-// 	helper.PanicIfError(err)
-// 	defer helper.CommitOrRollback(tx)
+	tx := service.DB.Begin()
+	// helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
 
-// 	cinema, err := service.CinemaRepository.FindByCode(ctx, tx, CinemaCode)
-// 	helper.PanicIfError(err)
+	cinema := domain.Cinema{
+		CinemaCode:      CinemaCode,
+		CinemaOwner:     request.CinemaOwner,
+		LocationCode:    request.LocationCode,
+		ProvinceCode:    request.ProvinceCode,
+		CityCode:        request.CityCode,
+		RegionCode:      request.RegionCode,
+		CompanyCode:     request.CompanyCode,
+		CinemaLevel:     request.CinemaLevel,
+		OracleCode:      request.OracleCode,
+		IsDataMigration: request.IsDataMigration,
+		CloseFlag:       request.CloseFlag,
+		CloseStart:      request.CloseStart,
+		CloseEnd:        request.CloseEnd,
+		OperatorEmail:   request.OperatorEmail,
+		UpdatedBy:       request.UpdatedBy,
+		UpdatedAt:       time.Now(),
+		UpdatedHostIp:   request.UpdatedHostIp,
+	}
 
-// 	cinema.CinemaName = request.CinemaName
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
-// 	cinema = service.CinemaRepository.Update(ctx, tx, cinema, CinemaCode)
+	cinema = service.CinemaRepository.Update(ctx, tx, cinema, CinemaCode)
 
-// 	return helper.ToCinemaResponse(cinema)
-// }
+	return helper.ToCinemaResponseUpdate(cinema)
+}
 
 func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string) {
 	tx := service.DB.Begin()
@@ -88,7 +122,7 @@ func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string)
 	service.CinemaRepository.Delete(ctx, tx, cinema)
 }
 
-func (service *CinemaServiceImpl) FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponse {
+func (service *CinemaServiceImpl) FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponseFind {
 	tx := service.DB.Begin()
 	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
@@ -104,7 +138,7 @@ func (service *CinemaServiceImpl) FindByCode(ctx context.Context, CinemaCode str
 	return helper.ToCinemaResponse(cinema)
 }
 
-func (service *CinemaServiceImpl) FindAll(ctx context.Context) []web.CinemaResponse {
+func (service *CinemaServiceImpl) FindAll(ctx context.Context) []web.CinemaResponseFind {
 	tx := service.DB.Begin()
 	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
@@ -117,7 +151,7 @@ func (service *CinemaServiceImpl) FindAll(ctx context.Context) []web.CinemaRespo
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	var cinemaResponses []web.CinemaResponse
+	var cinemaResponses []web.CinemaResponseFind
 	for _, cinema := range cinema {
 		cinemaResponses = append(cinemaResponses, helper.ToCinemaResponse(cinema))
 	}

@@ -26,7 +26,7 @@ func NewCinemaController(cinemaService service.CinemaService) *CinemaControllerI
 // @Accept json
 // @Produce json
 // @Param Cinema body web.CinemaCreateRequest true "Cinema object to be created"
-// @Success 200 {object} web.WebResponse
+// @Success 200 {object} web.WebResponseCreate
 // @Router /create [post]
 func (controller *CinemaControllerImpl) Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	decoder := json.NewDecoder(request.Body)
@@ -47,35 +47,33 @@ func (controller *CinemaControllerImpl) Create(writer http.ResponseWriter, reque
 	helper.PanicIfError(err)
 }
 
-// // @Summary Update theater
-// // @Description Update theater with the provided data.
-// // @Tags cinema
-// // @Accept json
-// // @Produce json
-// // @Param CinemaCode path string true "Cinema object to be updated"
-// // @Param Cinema body web.CinemaUpdateRequest true "Cinema object to be updated"
-// // @Success 200 {object} web.WebResponse
-// // @Router /update/{CinemaCode} [put]
-// func (controller *CinemaControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-// 	decoder := json.NewDecoder(request.Body)
+// @Summary Update theater
+// @Description Update theater with the provided data.
+// @Tags cinema
+// @Accept json
+// @Produce json
+// @Param CinemaCode path string true "Cinema object to be updated"
+// @Param Cinema body web.CinemaUpdateRequest true "Cinema object to be updated"
+// @Success 200 {object} web.WebResponse
+// @Router /update/{CinemaCode} [put]
+func (controller *CinemaControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	decoder := json.NewDecoder(request.Body)
 
-// 	cinemaUpdateRequest := web.CinemaUpdateRequest{}
-// 	err := decoder.Decode(&cinemaUpdateRequest)
-// 	helper.PanicIfError(err)
+	cinemaUpdateRequest := web.CinemaUpdateRequest{}
+	err := decoder.Decode(&cinemaUpdateRequest)
+	helper.PanicIfError(err)
 
-// 	fmt.Print(params.ByName("CinemaCode"))
+	cinemaResponse := controller.CinemaService.Update(request.Context(), cinemaUpdateRequest, params.ByName("CinemaCode"))
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   cinemaResponse,
+	}
 
-// 	cinemaResponse := controller.CinemaService.Update(request.Context(), cinemaUpdateRequest, params.ByName("CinemaCode"))
-// 	webResponse := web.WebResponse{
-// 		Code:   200,
-// 		Status: "OK",
-// 		Data:   cinemaResponse,
-// 	}
-
-// 	encoder := json.NewEncoder(writer)
-// 	err = encoder.Encode(webResponse)
-// 	helper.PanicIfError(err)
-// }
+	encoder := json.NewEncoder(writer)
+	err = encoder.Encode(webResponse)
+	helper.PanicIfError(err)
+}
 
 // @Summary Delete theater
 // @Description Delete theater with Cinema Code provided.
