@@ -19,7 +19,7 @@ func NewCinemaRepository(db *gorm.DB) *CinemaRepositoryImpl {
 }
 
 func (repository *CinemaRepositoryImpl) Save(ctx context.Context, tx *gorm.DB, cinema domain.Cinema) (domain.Cinema, error) {
-	result := repository.DB.Create(&cinema).Error
+	result := repository.DB.Model(&cinema).Omit("deleted_at", "updated_at").Create(&cinema).Error
 
 	if result != nil {
 		// Cek jika kesalahan adalah kesalahan MySQL
@@ -75,6 +75,8 @@ func (repository *CinemaRepositoryImpl) Delete(ctx context.Context, tx *gorm.DB,
 			fmt.Print("Tidak ada record yang bisa didelete")
 		}
 	}
+
+	repository.DB.Where("cinema_code = ?", cinema.CinemaCode).Update("deleted_host_ip", cinema.DeletedHostIp)
 	repository.DB.Delete(&cinema)
 }
 

@@ -35,7 +35,7 @@ func (controller *CinemaControllerImpl) Create(writer http.ResponseWriter, reque
 	err := decoder.Decode(&cinemaCreateRequest)
 	helper.PanicIfError(err)
 
-	cinemaResponse := controller.CinemaService.Create(request.Context(), cinemaCreateRequest)
+	cinemaResponse := controller.CinemaService.Create(request.Context(), cinemaCreateRequest, request)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
@@ -63,7 +63,7 @@ func (controller *CinemaControllerImpl) Update(writer http.ResponseWriter, reque
 	err := decoder.Decode(&cinemaUpdateRequest)
 	helper.PanicIfError(err)
 
-	cinemaResponse := controller.CinemaService.Update(request.Context(), cinemaUpdateRequest, params.ByName("CinemaCode"))
+	cinemaResponse := controller.CinemaService.Update(request.Context(), cinemaUpdateRequest, params.ByName("CinemaCode"), request)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
@@ -84,7 +84,7 @@ func (controller *CinemaControllerImpl) Update(writer http.ResponseWriter, reque
 // @Success 200 {object} web.WebResponse
 // @Router /delete/{CinemaCode} [delete]
 func (controller *CinemaControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	controller.CinemaService.Delete(request.Context(), params.ByName("CinemaCode"))
+	controller.CinemaService.Delete(request.Context(), params.ByName("CinemaCode"), request)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",

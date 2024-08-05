@@ -15,5 +15,4 @@ type CinemaUpdateRequest struct {
 	CloseEnd        string `json:"close_end"`
 	OperatorEmail   string `validate:"email" json:"operator_email"`
 	UpdatedBy       string `json:"updated_by"`
-	UpdatedHostIp   string `json:"updated_host_ip"`
 }

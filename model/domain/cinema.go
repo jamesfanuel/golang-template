@@ -27,6 +27,9 @@ type Cinema struct {
 	UpdatedBy     string
 	UpdatedAt     time.Time
 	UpdatedHostIp string
+	DeletedBy     string
+	DeletedAt     time.Time
+	DeletedHostIp string
 }
 
 func (c *Cinema) TableName() string {

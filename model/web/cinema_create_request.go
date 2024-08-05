@@ -17,5 +17,4 @@ type CinemaCreateRequest struct {
 	CloseEnd        string `json:"close_end"`
 	OperatorEmail   string `validate:"email" json:"operator_email"`
 	CreatedBy       string `json:"created_by"`
-	CreatedHostIp   string `json:"created_host_ip"`
 }

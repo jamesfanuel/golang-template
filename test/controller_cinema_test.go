@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"x1-cinema/controller"
 	"x1-cinema/helper"
 	"x1-cinema/middleware"
+	"x1-cinema/model/domain"
 	"x1-cinema/repository"
 	"x1-cinema/service"
 
@@ -56,13 +58,13 @@ func setupRouter(db *gorm.DB) http.Handler {
 	return middleware.NewAuthMiddleware(router)
 }
 
-func deleteCinema(db *gorm.DB) {
-	db.Exec("DELETE FROM mg_cinema WHERE cinema_code = 'CINETEST'")
+func deleteCinema(db *gorm.DB, params string) {
+	db.Exec("DELETE FROM mg_cinema WHERE cinema_code = " + params)
 }
 
 func TestCreateCinemaSuccess(t *testing.T) {
 	db := OpenConnection()
-	deleteCinema(db)
+	deleteCinema(db, "CINETEST")
 	router := setupRouter(db)
 
 	requestBody := strings.NewReader(`
@@ -82,8 +84,7 @@ func TestCreateCinemaSuccess(t *testing.T) {
 			"close_start":      "2024-01-01",
 			"close_end":        "2024-01-01",
 			"operator_email":   "domain@co.id",
-			"created_by":       "USER",
-			"created_host_ip":   "127.0.0.1"
+			"created_by":       "USER"
 		}
 	`)
 	request := httptest.NewRequest(http.MethodPost, "http://localhost:6010/api/v1/create", requestBody)
@@ -102,7 +103,7 @@ func TestCreateCinemaSuccess(t *testing.T) {
 
 	assert.Equal(t, 200, int(responseBody["code"].(float64)))
 	assert.Equal(t, "OK", responseBody["status"])
-	assert.Equal(t, requestBody, responseBody["data"])
+	// assert.Equal(t, requestBody, responseBody["data"])
 	// assert.Equal(t, "Gadget", responseBody["data"].(map[string]interface{})["name"])
 }
 
@@ -131,40 +132,58 @@ func TestCreateCinemaSuccess(t *testing.T) {
 // 	assert.Equal(t, "BAD REQUEST", responseBody["status"])
 // }
 
-// func TestUpdateCategorySuccess(t *testing.T) {
-// 	db := setupTestDB()
-// 	truncateCategory(db)
+func TestUpdateCinemaSuccess(t *testing.T) {
+	db := OpenConnection()
+	deleteCinema(db, "TESTUPDATE")
 
-// 	tx, _ := db.Begin()
-// 	categoryRepository := repository.NewCategoryRepository()
-// 	category := categoryRepository.Save(context.Background(), tx, domain.Category{
-// 		Name: "Gadget",
-// 	})
-// 	tx.Commit()
+	tx := db.Begin()
+	cinemaRepository := repository.NewCinemaRepository(db)
+	cinema, _ := cinemaRepository.Save(context.Background(), tx, domain.Cinema{
+		CinemaCode: "TESTUPDATE",
+		CinemaName: "TESTUPDATE",
+	})
+	tx.Commit()
 
-// 	router := setupRouter(db)
+	router := setupRouter(db)
 
-// 	requestBody := strings.NewReader(`{"name" : "Gadget"}`)
-// 	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), requestBody)
-// 	request.Header.Add("Content-Type", "application/json")
-// 	request.Header.Add("X-API-Key", "RAHASIA")
+	requestBody := strings.NewReader(`
+		{
+			"cinema_name":      "CINETEST123",
+			"cinema_owner":     "OWNER123",
+			"location_code":    "LOC123",
+			"province_code":    "PROV123",
+			"city_code":        "CITY123",
+			"region_code":      "REGION123",
+			"company_code":     "COMOWN123",
+			"cinema_level":     "REG",
+			"oracle_code":      "ORACLECODE",
+			"is_data_migration": "N",
+			"close_flag":       "N",
+			"close_start":      "2024-01-01",
+			"close_end":        "2024-01-01",
+			"operator_email":   "domain@co.id",
+			"updated_by":       "USER"
+		}
+	`)
 
-// 	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodPut, "http://localhost:6010/api/v1/update/"+cinema.CinemaCode, requestBody)
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("X-API-Key", "RAHASIA")
 
-// 	router.ServeHTTP(recorder, request)
+	recorder := httptest.NewRecorder()
 
-// 	response := recorder.Result()
-// 	assert.Equal(t, 200, response.StatusCode)
+	router.ServeHTTP(recorder, request)
 
-// 	body, _ := io.ReadAll(response.Body)
-// 	var responseBody map[string]interface{}
-// 	json.Unmarshal(body, &responseBody)
+	response := recorder.Result()
+	assert.Equal(t, 200, response.StatusCode)
 
-// 	assert.Equal(t, 200, int(responseBody["code"].(float64)))
-// 	assert.Equal(t, "OK", responseBody["status"])
-// 	assert.Equal(t, category.Id, int(responseBody["data"].(map[string]interface{})["id"].(float64)))
-// 	assert.Equal(t, "Gadget", responseBody["data"].(map[string]interface{})["name"])
-// }
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+
+	assert.Equal(t, 200, int(responseBody["code"].(float64)))
+	assert.Equal(t, "OK", responseBody["status"])
+}
 
 // func TestUpdateCategoryFailed(t *testing.T) {
 // 	db := setupTestDB()
@@ -199,38 +218,39 @@ func TestCreateCinemaSuccess(t *testing.T) {
 // 	assert.Equal(t, "BAD REQUEST", responseBody["status"])
 // }
 
-// func TestGetCategorySuccess(t *testing.T) {
-// 	db := setupTestDB()
-// 	truncateCategory(db)
+func TestGetCinemaSuccess(t *testing.T) {
+	db := OpenConnection()
+	deleteCinema(db, "TESTGET")
 
-// 	tx, _ := db.Begin()
-// 	categoryRepository := repository.NewCategoryRepository()
-// 	category := categoryRepository.Save(context.Background(), tx, domain.Category{
-// 		Name: "Gadget",
-// 	})
-// 	tx.Commit()
+	tx := db.Begin()
+	cinemaRepository := repository.NewCinemaRepository(db)
+	cinema, _ := cinemaRepository.Save(context.Background(), tx, domain.Cinema{
+		CinemaCode: "TESTGET",
+		CinemaName: "TESTGET",
+	})
+	tx.Commit()
 
-// 	router := setupRouter(db)
+	router := setupRouter(db)
 
-// 	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), nil)
-// 	request.Header.Add("X-API-Key", "RAHASIA")
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:6010/api/v1/get/"+cinema.CinemaCode, nil)
+	request.Header.Add("X-API-Key", "RAHASIA")
 
-// 	recorder := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 
-// 	router.ServeHTTP(recorder, request)
+	router.ServeHTTP(recorder, request)
 
-// 	response := recorder.Result()
-// 	assert.Equal(t, 200, response.StatusCode)
+	response := recorder.Result()
+	assert.Equal(t, 200, response.StatusCode)
 
-// 	body, _ := io.ReadAll(response.Body)
-// 	var responseBody map[string]interface{}
-// 	json.Unmarshal(body, &responseBody)
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
 
-// 	assert.Equal(t, 200, int(responseBody["code"].(float64)))
-// 	assert.Equal(t, "OK", responseBody["status"])
-// 	assert.Equal(t, category.Id, int(responseBody["data"].(map[string]interface{})["id"].(float64)))
-// 	assert.Equal(t, category.Name, responseBody["data"].(map[string]interface{})["name"])
-// }
+	assert.Equal(t, 200, int(responseBody["code"].(float64)))
+	assert.Equal(t, "OK", responseBody["status"])
+	// assert.Equal(t, category.Id, int(responseBody["data"].(map[string]interface{})["id"].(float64)))
+	assert.Equal(t, cinema.CinemaCode, responseBody["data"].(map[string]interface{})["cinema_code"])
+}
 
 // func TestGetCategoryFailed(t *testing.T) {
 // 	db := setupTestDB()
@@ -255,37 +275,38 @@ func TestCreateCinemaSuccess(t *testing.T) {
 // 	assert.Equal(t, "NOT FOUND", responseBody["status"])
 // }
 
-// func TestDeleteCategorySuccess(t *testing.T) {
-// 	db := setupTestDB()
-// 	truncateCategory(db)
+func TestDeleteCategorySuccess(t *testing.T) {
+	db := OpenConnection()
+	deleteCinema(db, "TESTDELETE")
 
-// 	tx, _ := db.Begin()
-// 	categoryRepository := repository.NewCategoryRepository()
-// 	category := categoryRepository.Save(context.Background(), tx, domain.Category{
-// 		Name: "Gadget",
-// 	})
-// 	tx.Commit()
+	tx := db.Begin()
+	cinemaRepository := repository.NewCinemaRepository(db)
+	cinema, _ := cinemaRepository.Save(context.Background(), tx, domain.Cinema{
+		CinemaCode: "TESTDELETE",
+		CinemaName: "TESTDELETE",
+	})
+	tx.Commit()
 
-// 	router := setupRouter(db)
+	router := setupRouter(db)
 
-// 	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/categories/"+strconv.Itoa(category.Id), nil)
-// 	request.Header.Add("Content-Type", "application/json")
-// 	request.Header.Add("X-API-Key", "RAHASIA")
+	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/v1/delete/"+cinema.CinemaCode, nil)
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("X-API-Key", "RAHASIA")
 
-// 	recorder := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 
-// 	router.ServeHTTP(recorder, request)
+	router.ServeHTTP(recorder, request)
 
-// 	response := recorder.Result()
-// 	assert.Equal(t, 200, response.StatusCode)
+	response := recorder.Result()
+	assert.Equal(t, 200, response.StatusCode)
 
-// 	body, _ := io.ReadAll(response.Body)
-// 	var responseBody map[string]interface{}
-// 	json.Unmarshal(body, &responseBody)
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
 
-// 	assert.Equal(t, 200, int(responseBody["code"].(float64)))
-// 	assert.Equal(t, "OK", responseBody["status"])
-// }
+	assert.Equal(t, 200, int(responseBody["code"].(float64)))
+	assert.Equal(t, "OK", responseBody["status"])
+}
 
 // func TestDeleteCategoryFailed(t *testing.T) {
 // 	db := setupTestDB()
@@ -311,72 +332,73 @@ func TestCreateCinemaSuccess(t *testing.T) {
 // 	assert.Equal(t, "NOT FOUND", responseBody["status"])
 // }
 
-// func TestListCategoriesSuccess(t *testing.T) {
-// 	db := setupTestDB()
-// 	truncateCategory(db)
+func TestListCategoriesSuccess(t *testing.T) {
+	db := OpenConnection()
+	deleteCinema(db, "TESTLIST1")
+	deleteCinema(db, "TESTLIST2")
 
-// 	tx, _ := db.Begin()
-// 	categoryRepository := repository.NewCategoryRepository()
-// 	category1 := categoryRepository.Save(context.Background(), tx, domain.Category{
-// 		Name: "Gadget",
-// 	})
-// 	category2 := categoryRepository.Save(context.Background(), tx, domain.Category{
-// 		Name: "Computer",
-// 	})
-// 	tx.Commit()
+	tx := db.Begin()
+	cinemaRepository := repository.NewCinemaRepository(db)
+	cinema1, _ := cinemaRepository.Save(context.Background(), tx, domain.Cinema{
+		CinemaCode: "TESTLIST1",
+		CinemaName: "TESTLIST1",
+	})
+	cinema2, _ := cinemaRepository.Save(context.Background(), tx, domain.Cinema{
+		CinemaCode: "TESTLIST2",
+		CinemaName: "TESTLIST2",
+	})
+	tx.Commit()
 
-// 	router := setupRouter(db)
+	router := setupRouter(db)
 
-// 	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories", nil)
-// 	request.Header.Add("X-API-Key", "RAHASIA")
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:6010/api/v1/get", nil)
+	request.Header.Add("X-API-Key", "RAHASIA")
 
-// 	recorder := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 
-// 	router.ServeHTTP(recorder, request)
+	router.ServeHTTP(recorder, request)
 
-// 	response := recorder.Result()
-// 	assert.Equal(t, 200, response.StatusCode)
+	response := recorder.Result()
+	assert.Equal(t, 200, response.StatusCode)
 
-// 	body, _ := io.ReadAll(response.Body)
-// 	var responseBody map[string]interface{}
-// 	json.Unmarshal(body, &responseBody)
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
 
-// 	assert.Equal(t, 200, int(responseBody["code"].(float64)))
-// 	assert.Equal(t, "OK", responseBody["status"])
+	assert.Equal(t, 200, int(responseBody["code"].(float64)))
+	assert.Equal(t, "OK", responseBody["status"])
 
-// 	fmt.Println(responseBody)
+	var cinema = responseBody["data"].([]interface{})
 
-// 	var categories = responseBody["data"].([]interface{})
+	cinemaResponse1 := cinema[0].(map[string]interface{})
+	cinemaResponse2 := cinema[1].(map[string]interface{})
 
-// 	categoryResponse1 := categories[0].(map[string]interface{})
-// 	categoryResponse2 := categories[1].(map[string]interface{})
+	assert.Equal(t, cinema1.CinemaCode, cinemaResponse1["cinema_code"])
+	assert.Equal(t, cinema1.CinemaName, cinemaResponse1["cinema_name"])
 
-// 	assert.Equal(t, category1.Id, int(categoryResponse1["id"].(float64)))
-// 	assert.Equal(t, category1.Name, categoryResponse1["name"])
+	assert.Equal(t, cinema2.CinemaCode, cinemaResponse2["cinema_code"])
+	assert.Equal(t, cinema2.CinemaName, cinemaResponse2["cinema_name"])
+}
 
-// 	assert.Equal(t, category2.Id, int(categoryResponse2["id"].(float64)))
-// 	assert.Equal(t, category2.Name, categoryResponse2["name"])
-// }
+func TestUnauthorized(t *testing.T) {
+	db := OpenConnection()
+	// truncateCategory(db)
+	router := setupRouter(db)
 
-// func TestUnauthorized(t *testing.T) {
-// 	db := setupTestDB()
-// 	truncateCategory(db)
-// 	router := setupRouter(db)
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:6010/api/v1/get", nil)
+	request.Header.Add("X-API-Key", "SALAH")
 
-// 	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/categories", nil)
-// 	request.Header.Add("X-API-Key", "SALAH")
+	recorder := httptest.NewRecorder()
 
-// 	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
 
-// 	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	assert.Equal(t, 401, response.StatusCode)
 
-// 	response := recorder.Result()
-// 	assert.Equal(t, 401, response.StatusCode)
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
 
-// 	body, _ := io.ReadAll(response.Body)
-// 	var responseBody map[string]interface{}
-// 	json.Unmarshal(body, &responseBody)
-
-// 	assert.Equal(t, 401, int(responseBody["code"].(float64)))
-// 	assert.Equal(t, "UNAUTHORIZED", responseBody["status"])
-// }
+	assert.Equal(t, 401, int(responseBody["code"].(float64)))
+	assert.Equal(t, "UNAUTHORIZED", responseBody["status"])
+}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	// "database/sql"
@@ -29,7 +30,7 @@ func NewCinemaService(cinemaRepository repository.CinemaRepository, DB *gorm.DB,
 	}
 }
 
-func (service *CinemaServiceImpl) Create(ctx context.Context, request web.CinemaCreateRequest) web.CinemaResponseCreate {
+func (service *CinemaServiceImpl) Create(ctx context.Context, request web.CinemaCreateRequest, urlRequest *http.Request) web.CinemaResponseCreate {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -55,7 +56,7 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 		OperatorEmail:   request.OperatorEmail,
 		CreatedBy:       request.CreatedBy,
 		CreatedAt:       time.Now(),
-		CreatedHostIp:   request.CreatedHostIp,
+		CreatedHostIp:   urlRequest.RemoteAddr,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -70,7 +71,7 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 	return helper.ToCinemaResponseCreate(cinema)
 }
 
-func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string) web.CinemaResponseUpdate {
+func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string, urlRequest *http.Request) web.CinemaResponseUpdate {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -95,7 +96,7 @@ func (service *CinemaServiceImpl) Update(ctx context.Context, request web.Cinema
 		OperatorEmail:   request.OperatorEmail,
 		UpdatedBy:       request.UpdatedBy,
 		UpdatedAt:       time.Now(),
-		UpdatedHostIp:   request.UpdatedHostIp,
+		UpdatedHostIp:   urlRequest.RemoteAddr,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -106,7 +107,7 @@ func (service *CinemaServiceImpl) Update(ctx context.Context, request web.Cinema
 	return helper.ToCinemaResponseUpdate(cinema)
 }
 
-func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string) {
+func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string, urlRequest *http.Request) {
 	tx := service.DB.Begin()
 	// helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
@@ -118,6 +119,8 @@ func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
+
+	cinema.DeletedHostIp = urlRequest.RemoteAddr
 
 	service.CinemaRepository.Delete(ctx, tx, cinema)
 }
