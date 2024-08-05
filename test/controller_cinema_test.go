@@ -59,7 +59,7 @@ func setupRouter(db *gorm.DB) http.Handler {
 }
 
 func deleteCinema(db *gorm.DB, params string) {
-	db.Exec("DELETE FROM mg_cinema WHERE cinema_code = " + params)
+	db.Exec("DELETE FROM mg_cinema WHERE cinema_code = '" + params + "'")
 }
 
 func TestCreateCinemaSuccess(t *testing.T) {

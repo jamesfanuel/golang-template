@@ -24,10 +24,7 @@ func (repository *CinemaRepositoryImpl) Save(ctx context.Context, tx *gorm.DB, c
 	if result != nil {
 		// Cek jika kesalahan adalah kesalahan MySQL
 		if mysqlErr, ok := result.(*mysql.MySQLError); ok {
-			if mysqlErr.Number == 1062 {
-				// Kode 1062 adalah kode duplikat entri di MySQL
-				return cinema, mysqlErr
-			}
+			return cinema, mysqlErr
 		}
 		return cinema, result
 	}

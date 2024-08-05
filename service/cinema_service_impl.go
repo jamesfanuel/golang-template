@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	// "database/sql"
@@ -65,7 +66,11 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 	cinema, err = service.CinemaRepository.Save(ctx, tx, cinema)
 
 	if err != nil {
-		panic(exception.NewDuplicateKeyError(err.Error()))
+		if strings.Split(err.Error(), " ")[1] == "1062" {
+			panic(exception.NewDuplicateKeyError(err.Error()))
+		} else {
+			panic(exception.NewUnknownColumnError(err.Error()))
+		}
 	}
 
 	return helper.ToCinemaCreateResponse(cinema)
