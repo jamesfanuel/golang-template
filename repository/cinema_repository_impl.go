@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"x1-cinema/model/domain"
+	"go-ms-template-service/model/domain"
 
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"

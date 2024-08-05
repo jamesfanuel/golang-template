@@ -1,8 +1,8 @@
 package helper
 
 import (
-	"x1-cinema/model/domain"
-	"x1-cinema/model/web"
+	"go-ms-template-service/model/domain"
+	"go-ms-template-service/model/web"
 )
 
 func ToCinemaResponse(cinema domain.Cinema) web.CinemaResponseFind {

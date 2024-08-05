@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"go-ms-template-service/model/web"
 	"net/http"
-	"x1-cinema/model/web"
 )
 
 type CinemaService interface {

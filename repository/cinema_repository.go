@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"x1-cinema/model/domain"
+	"go-ms-template-service/model/domain"
 
 	"gorm.io/gorm"
 )

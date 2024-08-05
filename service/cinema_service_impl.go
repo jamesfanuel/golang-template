@@ -7,11 +7,11 @@ import (
 	"time"
 
 	// "database/sql"
-	"x1-cinema/exception"
-	"x1-cinema/helper"
-	"x1-cinema/model/domain"
-	"x1-cinema/model/web"
-	"x1-cinema/repository"
+	"go-ms-template-service/exception"
+	"go-ms-template-service/helper"
+	"go-ms-template-service/model/domain"
+	"go-ms-template-service/model/web"
+	"go-ms-template-service/repository"
 
 	"github.com/go-playground/validator"
 	"gorm.io/gorm"

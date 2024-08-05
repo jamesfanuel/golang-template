@@ -1,9 +1,9 @@
 package app
 
 import (
+	"go-ms-template-service/controller"
+	"go-ms-template-service/exception"
 	"net/http"
-	"x1-cinema/controller"
-	"x1-cinema/exception"
 
 	"github.com/julienschmidt/httprouter"
 )

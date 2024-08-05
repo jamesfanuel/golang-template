@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"go-ms-template-service/helper"
+	"go-ms-template-service/model/web"
 	"net/http"
 	"strings"
-	"x1-cinema/helper"
-	"x1-cinema/model/web"
 )
 
 type AuthMiddleware struct {

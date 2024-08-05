@@ -1,9 +1,9 @@
 package exception
 
 import (
+	"go-ms-template-service/helper"
+	"go-ms-template-service/model/web"
 	"net/http"
-	"x1-cinema/helper"
-	"x1-cinema/model/web"
 
 	"github.com/go-playground/validator"
 )

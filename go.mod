@@ -1,4 +1,4 @@
-module x1-cinema
+module go-ms-template-service
 
 go 1.20
 

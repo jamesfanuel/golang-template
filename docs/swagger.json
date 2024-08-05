@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API Doc for x1-cinema.",
-        "title": "x1-cinema API",
+        "description": "API Doc for go-ms-template-service.",
+        "title": "go-ms-template-service API",
         "contact": {},
         "version": "1.0"
     },

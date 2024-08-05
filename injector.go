@@ -4,12 +4,12 @@
 package main
 
 import (
+	"go-ms-template-service/app"
+	"go-ms-template-service/controller"
+	"go-ms-template-service/middleware"
+	"go-ms-template-service/repository"
+	"go-ms-template-service/service"
 	"net/http"
-	"x1-cinema/app"
-	"x1-cinema/controller"
-	"x1-cinema/middleware"
-	"x1-cinema/repository"
-	"x1-cinema/service"
 
 	"github.com/go-playground/validator"
 	"github.com/google/wire"

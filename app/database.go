@@ -2,7 +2,7 @@ package app
 
 import (
 	"time"
-	"x1-cinema/helper"
+	"go-ms-template-service/helper"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

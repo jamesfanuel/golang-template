@@ -2,10 +2,10 @@ package controller
 
 import (
 	"encoding/json"
+	"go-ms-template-service/helper"
+	"go-ms-template-service/model/web"
+	"go-ms-template-service/service"
 	"net/http"
-	"x1-cinema/helper"
-	"x1-cinema/model/web"
-	"x1-cinema/service"
 
 	"github.com/julienschmidt/httprouter"
 )
