@@ -25,11 +25,14 @@ func ToCinemaResponse(cinema domain.Cinema) web.CinemaResponseFind {
 		CreatedBy:       cinema.CreatedBy,
 		CreatedAt:       cinema.CreatedAt,
 		CreatedHostIp:   cinema.CreatedHostIp,
+		UpdatedBy:       cinema.UpdatedBy,
+		UpdatedAt:       cinema.UpdatedAt,
+		UpdatedHostIp:   cinema.UpdatedHostIp,
 	}
 }
 
-func ToCinemaResponseCreate(cinema domain.Cinema) web.CinemaResponseCreate {
-	return web.CinemaResponseCreate{
+func ToCinemaCreateResponse(cinema domain.Cinema) web.CinemaCreateResponse {
+	return web.CinemaCreateResponse{
 		CinemaCode:      cinema.CinemaCode,
 		CinemaName:      cinema.CinemaName,
 		CinemaOwner:     cinema.CinemaOwner,
@@ -51,8 +54,8 @@ func ToCinemaResponseCreate(cinema domain.Cinema) web.CinemaResponseCreate {
 	}
 }
 
-func ToCinemaResponseUpdate(cinema domain.Cinema) web.CinemaResponseUpdate {
-	return web.CinemaResponseUpdate{
+func ToCinemaUpdateResponse(cinema domain.Cinema) web.CinemaUpdateResponse {
+	return web.CinemaUpdateResponse{
 		CinemaCode:      cinema.CinemaCode,
 		CinemaName:      cinema.CinemaName,
 		CinemaOwner:     cinema.CinemaOwner,

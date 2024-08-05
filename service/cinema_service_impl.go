@@ -30,7 +30,7 @@ func NewCinemaService(cinemaRepository repository.CinemaRepository, DB *gorm.DB,
 	}
 }
 
-func (service *CinemaServiceImpl) Create(ctx context.Context, request web.CinemaCreateRequest, urlRequest *http.Request) web.CinemaResponseCreate {
+func (service *CinemaServiceImpl) Create(ctx context.Context, request web.CinemaCreateRequest, urlRequest *http.Request) web.CinemaCreateResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -68,10 +68,10 @@ func (service *CinemaServiceImpl) Create(ctx context.Context, request web.Cinema
 		panic(exception.NewDuplicateKeyError(err.Error()))
 	}
 
-	return helper.ToCinemaResponseCreate(cinema)
+	return helper.ToCinemaCreateResponse(cinema)
 }
 
-func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string, urlRequest *http.Request) web.CinemaResponseUpdate {
+func (service *CinemaServiceImpl) Update(ctx context.Context, request web.CinemaUpdateRequest, CinemaCode string, urlRequest *http.Request) web.CinemaUpdateResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -104,7 +104,7 @@ func (service *CinemaServiceImpl) Update(ctx context.Context, request web.Cinema
 
 	cinema = service.CinemaRepository.Update(ctx, tx, cinema, CinemaCode)
 
-	return helper.ToCinemaResponseUpdate(cinema)
+	return helper.ToCinemaUpdateResponse(cinema)
 }
 
 func (service *CinemaServiceImpl) Delete(ctx context.Context, CinemaCode string, urlRequest *http.Request) {

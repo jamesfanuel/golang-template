@@ -50,10 +50,10 @@ func TestOpenConnection(t *testing.T) {
 
 func setupRouter(db *gorm.DB) http.Handler {
 	validate := validator.New()
-	categoryRepository := repository.NewCinemaRepository(db)
-	categoryService := service.NewCinemaService(categoryRepository, db, validate)
-	categoryController := controller.NewCinemaController(categoryService)
-	router := app.NewRouter(categoryController)
+	cinemaRepository := repository.NewCinemaRepository(db)
+	cinemaService := service.NewCinemaService(cinemaRepository, db, validate)
+	cinemaController := controller.NewCinemaController(cinemaService)
+	router := app.NewRouter(cinemaController)
 
 	return middleware.NewAuthMiddleware(router)
 }
@@ -275,7 +275,7 @@ func TestGetCinemaSuccess(t *testing.T) {
 // 	assert.Equal(t, "NOT FOUND", responseBody["status"])
 // }
 
-func TestDeleteCategorySuccess(t *testing.T) {
+func TestDeleteCinemaSuccess(t *testing.T) {
 	db := OpenConnection()
 	deleteCinema(db, "TESTDELETE")
 
@@ -332,7 +332,7 @@ func TestDeleteCategorySuccess(t *testing.T) {
 // 	assert.Equal(t, "NOT FOUND", responseBody["status"])
 // }
 
-func TestListCategoriesSuccess(t *testing.T) {
+func TestListCinemasSuccess(t *testing.T) {
 	db := OpenConnection()
 	deleteCinema(db, "TESTLIST1")
 	deleteCinema(db, "TESTLIST2")

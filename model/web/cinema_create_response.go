@@ -2,7 +2,7 @@ package web
 
 import "time"
 
-type CinemaResponseUpdate struct {
+type CinemaCreateResponse struct {
 	CinemaCode      string    `json:"cinema_code"`
 	CinemaName      string    `json:"cinema_name"`
 	CinemaOwner     string    `json:"cinema_owner"`
@@ -18,7 +18,7 @@ type CinemaResponseUpdate struct {
 	CloseStart      string    `json:"close_start"`
 	CloseEnd        string    `json:"close_end"`
 	OperatorEmail   string    `json:"operator_email"`
-	UpdatedBy       string    `json:"updated_by"`
-	UpdatedAt       time.Time `json:"updated_at"`
-	UpdatedHostIp   string    `json:"updated_host_ip"`
+	CreatedBy       string    `json:"created_by"`
+	CreatedAt       time.Time `json:"created_at"`
+	CreatedHostIp   string    `json:"created_host_ip"`
 }
