@@ -12,4 +12,5 @@ type CinemaService interface {
 	Delete(ctx context.Context, CinemaCode string, urlRequest *http.Request)
 	FindByCode(ctx context.Context, CinemaCode string) web.CinemaResponseFind
 	FindAll(ctx context.Context) []web.CinemaResponseFind
+	SaveToRedis(ctx context.Context) string
 }

@@ -29,6 +29,7 @@ var cinemaSet = wire.NewSet(
 
 func InitializedServer() *http.Server {
 	wire.Build(
+		app.NewLog,
 		app.NewDB,
 		validator.New,
 		cinemaSet,
